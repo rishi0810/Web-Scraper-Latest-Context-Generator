@@ -1,0 +1,32 @@
+{
+  "name": "scraper-backend",
+  "version": "1.0.0",
+  "description": "Backend for scraping service",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "node server.js",
+    "format": "prettier --write ."
+  },
+  "keywords": [
+    "Web scraper",
+    "Node Web Scraper"
+  ],
+  "author": "Rishi Raj",
+  "license": "ISC",
+  "packageManager": "pnpm@10.18.3",
+  "dependencies": {
+    "axios": "^1.12.2",
+    "axios-cookiejar-support": "^6.0.4",
+    "cheerio": "^1.1.2",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "express-rate-limit": "^8.1.0",
+    "iconv-lite": "^0.7.0",
+    "tough-cookie": "^6.0.0"
+  },
+  "devDependencies": {
+    "prettier": "^3.6.2"
+  }
+}
