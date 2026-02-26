@@ -4,6 +4,8 @@ import cors from "cors";
 import limit from "./utils/functions/rateLimit.js";
 import pageParse from "./controllers/pageParse.js";
 import rawDump from "./controllers/rawDump.js";
+import imageParse from "./controllers/imageParse.js";
+import imagesDump from "./controllers/imagesDump.js";
 
 configDotenv();
 
@@ -12,7 +14,7 @@ const port = process.env.PORT || 8080;
 
 app.use(express.json());
 app.use(cors());
-app.use(["/api/parse", "/api/scrape"], limit);
+app.use(["/api/parse", "/api/scrape", "/api/image", "/api/images"], limit);
 
 app.get("/", (req, res) => {
   const html = `<!doctype html>
@@ -387,6 +389,147 @@ app.get("/", (req, res) => {
           </div>
         </div>
       </div>
+
+      <div class="endpoint">
+        <div class="endpoint-header">
+          <span class="method get">GET</span>
+          <span class="endpoint-path">/api/image</span>
+          <div class="endpoint-description">
+            Extract all image sources from a single webpage
+          </div>
+        </div>
+        <div class="endpoint-body">
+          <div class="section">
+            <h4>Parameters</h4>
+            <table class="params-table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Type</th>
+                  <th>Required</th>
+                  <th>Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>url</td>
+                  <td>string</td>
+                  <td>Yes</td>
+                  <td>The URL of the webpage to extract images from</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="section">
+            <h4>Response Examples</h4>
+            <div class="code-block">
+              Status: <span class="status-code status-200">200 OK</span> {
+              "url": "https://example.com",
+              "images": [
+                "https://example.com/logo.png",
+                "https://example.com/hero.jpg"
+              ] }
+            </div>
+
+            <div class="code-block">
+              Status:
+              <span class="status-code status-400">400 Bad Request</span> {
+              "message": "Missing URL" }
+            </div>
+          </div>
+
+          <div class="try-it-section">
+            <h4>Try it out</h4>
+            <div class="input-group">
+              <label for="image-url">URL:</label>
+              <input
+                type="text"
+                id="image-url"
+                placeholder="https://example.com"
+                value="https://example.com"
+              />
+            </div>
+            <button class="btn" onclick="testImage()">Send Request</button>
+            <div id="image-response" class="response-area">
+              Enter a URL and click "Send Request" to test
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="endpoint">
+        <div class="endpoint-header">
+          <span class="method get">GET</span>
+          <span class="endpoint-path">/api/images</span>
+          <div class="endpoint-description">
+            Search multiple engines and extract images from each result page
+          </div>
+        </div>
+        <div class="endpoint-body">
+          <div class="section">
+            <h4>Parameters</h4>
+            <table class="params-table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Type</th>
+                  <th>Required</th>
+                  <th>Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>q</td>
+                  <td>string</td>
+                  <td>Yes</td>
+                  <td>Search query to find pages and extract their images</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="section">
+            <h4>Response Examples</h4>
+            <div class="code-block">
+              Status: <span class="status-code status-200">200 OK</span> {
+              "message": "Ok", "data": [ { "url": "https://example.com/page1",
+              "search_engine": "brave", "images": [
+                "https://example.com/page1/img1.jpg",
+                "https://example.com/page1/img2.png"
+              ] }, { "url": "https://example.com/page2", "search_engine":
+              "yahoo", "images": [
+                "https://example.com/page2/hero.webp"
+              ] } ] }
+            </div>
+
+            <div class="code-block">
+              Status:
+              <span class="status-code status-500"
+                >500 Internal Server Error</span
+              >
+              { "error": "Internal server error" }
+            </div>
+          </div>
+
+          <div class="try-it-section">
+            <h4>Try it out</h4>
+            <div class="input-group">
+              <label for="images-query">Search Query:</label>
+              <input
+                type="text"
+                id="images-query"
+                placeholder="machine learning basics"
+                value="machine learning"
+              />
+            </div>
+            <button class="btn" onclick="testImages()">Send Request</button>
+            <div id="images-response" class="response-area">
+              Enter a search query and click "Send Request" to test
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <script>
@@ -443,6 +586,46 @@ app.get("/", (req, res) => {
               responseDiv.textContent = \`Error: \${error.message}\`;
           }
       }
+
+      async function testImage() {
+          const url = document.getElementById('image-url').value;
+          const responseDiv = document.getElementById('image-response');
+
+          if (!url) {
+              responseDiv.textContent = 'Please enter a URL';
+              return;
+          }
+
+          responseDiv.textContent = 'Loading...';
+
+          try {
+              const response = await fetch(\`/api/image?url=\${encodeURIComponent(url)}\`);
+              const data = await response.json();
+              responseDiv.textContent = \`Status: \${response.status} \${response.statusText}\n\${JSON.stringify(data, null, 2)}\`;
+          } catch (error) {
+              responseDiv.textContent = \`Error: \${error.message}\`;
+          }
+      }
+
+      async function testImages() {
+          const query = document.getElementById('images-query').value;
+          const responseDiv = document.getElementById('images-response');
+
+          if (!query) {
+              responseDiv.textContent = 'Please enter a search query';
+              return;
+          }
+
+          responseDiv.textContent = 'Loading... (This may take a while as it searches and extracts images from multiple pages)';
+
+          try {
+              const response = await fetch(\`/api/images?q=\${encodeURIComponent(query)}\`);
+              const data = await response.json();
+              responseDiv.textContent = \`Status: \${response.status} \${response.statusText}\n\${JSON.stringify(data, null, 2)}\`;
+          } catch (error) {
+              responseDiv.textContent = \`Error: \${error.message}\`;
+          }
+      }
     </script>
   </body>
 </html>
@@ -457,5 +640,7 @@ app.get("/api/health", (req, res) => {
 
 app.get("/api/parse", pageParse);
 app.get("/api/scrape", rawDump);
+app.get("/api/image", imageParse);
+app.get("/api/images", imagesDump);
 
 app.listen(port, () => {});
