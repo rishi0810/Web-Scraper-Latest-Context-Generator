@@ -6,6 +6,7 @@ import pageParse from "./controllers/pageParse.js";
 import rawDump from "./controllers/rawDump.js";
 import imageParse from "./controllers/imageParse.js";
 import imagesDump from "./controllers/imagesDump.js";
+import searchUrls from "./controllers/searchUrls.js";
 
 configDotenv();
 
@@ -14,7 +15,7 @@ const port = process.env.PORT || 8080;
 
 app.use(express.json());
 app.use(cors());
-app.use(["/api/parse", "/api/scrape", "/api/image", "/api/images"], limit);
+app.use(["/api/parse", "/api/scrape", "/api/image", "/api/images", "/api/search"], limit);
 
 app.get("/", (req, res) => {
   const html = `<!doctype html>
@@ -642,5 +643,6 @@ app.get("/api/parse", pageParse);
 app.get("/api/scrape", rawDump);
 app.get("/api/image", imageParse);
 app.get("/api/images", imagesDump);
+app.get("/api/search", searchUrls);
 
 app.listen(port, () => {});
