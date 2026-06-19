@@ -22,7 +22,7 @@ const searchUrls = async (req, res) => {
 
     const filtered = linkFilter(allUrls);
 
-    return res.status(200).json({ message: "Ok", urls: filtered });
+    return res.status(200).json({ urls: filtered });
   } catch (err) {
     console.error("Error in searchUrls:", err);
     return res.status(500).json({ error: "Internal server error" });
