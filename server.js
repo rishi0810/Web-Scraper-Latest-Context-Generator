@@ -15,7 +15,10 @@ const port = process.env.PORT || 8080;
 
 app.use(express.json());
 app.use(cors());
-app.use(["/api/parse", "/api/scrape", "/api/image", "/api/images", "/api/search"], limit);
+app.use(
+  ["/api/parse", "/api/scrape", "/api/image", "/api/images", "/api/search"],
+  limit,
+);
 
 app.get("/", (req, res) => {
   const html = `<!doctype html>
