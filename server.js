@@ -399,6 +399,69 @@ app.get("/", (req, res) => {
       <div class="endpoint">
         <div class="endpoint-header">
           <span class="method get">GET</span>
+          <span class="endpoint-path">/api/search</span>
+          <div class="endpoint-description">
+            Search for URLs, optionally restricted to a domain
+          </div>
+        </div>
+        <div class="endpoint-body">
+          <div class="section">
+            <h4>Parameters</h4>
+            <table class="params-table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Type</th>
+                  <th>Required</th>
+                  <th>Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>q</td>
+                  <td>string</td>
+                  <td>Yes</td>
+                  <td>Search query</td>
+                </tr>
+                <tr>
+                  <td>domain</td>
+                  <td>string</td>
+                  <td>No</td>
+                  <td>Hostname to restrict results to, including subdomains</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="try-it-section">
+            <h4>Try it out</h4>
+            <div class="input-group">
+              <label for="search-query">Search Query:</label>
+              <input
+                type="text"
+                id="search-query"
+                value="latest news"
+              />
+            </div>
+            <div class="input-group">
+              <label for="search-domain">Domain:</label>
+              <input
+                type="text"
+                id="search-domain"
+                value="timesofindia.indiatimes.com"
+              />
+            </div>
+            <button class="btn" onclick="testSearch()">Send Request</button>
+            <div id="search-response" class="response-area">
+              Enter a query and optional domain, then click "Send Request"
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="endpoint">
+        <div class="endpoint-header">
+          <span class="method get">GET</span>
           <span class="endpoint-path">/api/image</span>
           <div class="endpoint-description">
             Extract all image sources from a single webpage
@@ -566,6 +629,29 @@ app.get("/", (req, res) => {
 
           try {
               const response = await fetch(\`/api/parse?url=\${encodeURIComponent(url)}\`);
+              const data = await response.json();
+              responseDiv.textContent = \`Status: \${response.status} \${response.statusText}\n\${JSON.stringify(data, null, 2)}\`;
+          } catch (error) {
+              responseDiv.textContent = \`Error: \${error.message}\`;
+          }
+      }
+
+      async function testSearch() {
+          const query = document.getElementById('search-query').value;
+          const domain = document.getElementById('search-domain').value;
+          const responseDiv = document.getElementById('search-response');
+
+          if (!query) {
+              responseDiv.textContent = 'Please enter a search query';
+              return;
+          }
+
+          responseDiv.textContent = 'Loading...';
+
+          try {
+              const params = new URLSearchParams({ q: query });
+              if (domain) params.set('domain', domain);
+              const response = await fetch(\`/api/search?\${params}\`);
               const data = await response.json();
               responseDiv.textContent = \`Status: \${response.status} \${response.statusText}\n\${JSON.stringify(data, null, 2)}\`;
           } catch (error) {

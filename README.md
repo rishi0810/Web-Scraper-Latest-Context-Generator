@@ -8,6 +8,7 @@ This project is a hosted web scraping service that extracts and consolidates tex
 
 - Parse endpoint: Accepts a single URL and returns the main textual content of that page. The parser removes scripts, styles, iframes and other non-content elements, and attempts to identify the page's primary content container (for example, `main`, `article`, or the element with the most paragraph content).
 - Scrape endpoint: Accepts a search query, queries multiple search engines (Brave, Yahoo, Startpage), aggregates unique result URLs, filters and normalizes them, then scrapes each target page to produce a raw content dump along with source metadata.
+- Search endpoint: `GET /api/search?q=<query>&domain=<hostname>` returns result URLs restricted to the hostname or its subdomains. `site` is accepted as an alias for `domain`.
 
 ## Key behaviors and features
 
@@ -25,6 +26,8 @@ This project is a hosted web scraping service that extracts and consolidates tex
 
 - Scrape endpoint input: a search query string.
 - Scrape endpoint output: an array of entries; each entry contains the URL, the search engine source, and the scraped text for that URL.
+
+- Search endpoint example: `/api/search?q=latest%20news&domain=timesofindia.indiatimes.com`.
 
 ## Operational notes
 

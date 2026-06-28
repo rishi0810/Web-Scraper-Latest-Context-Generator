@@ -3,6 +3,7 @@ import * as cheerio from "cheerio";
 import { CookieJar } from "tough-cookie";
 import { wrapper } from "axios-cookiejar-support";
 import iconv from "iconv-lite";
+import fs from "fs";
 import linkFilter from "../functions/linkFilter.js";
 
 import { configDotenv } from "dotenv";
@@ -83,11 +84,28 @@ const fetchFromStartpage = async (query, options = {}) => {
       const body = iconv.decode(response.data, charset);
 
       const $ = cheerio.load(body);
+      const pageTitle = $("title").text();
       const mainSec = $("#main");
       const spgLinks = [];
 
+      console.log(
+        `[Startpage:debug] status=${response.status} title="${pageTitle}" #main=${mainSec.length} bodyLen=${body.length}`,
+      );
+
+      if (mainSec.length === 0) {
+        try {
+          fs.writeFileSync("debug_startpage.html", body, "utf-8");
+        } catch (writeErr) {
+          console.error(
+            "[Startpage:debug] Failed to write debug_startpage.html:",
+            writeErr,
+          );
+        }
+      }
+
       if (mainSec.length) {
         const results = mainSec.find("div.result");
+        console.log(`[Startpage:debug] div.result count=${results.length}`);
         results.each((i, r) => {
           const a = $(r).find("a.result-title[href]");
           if (a.length) {
@@ -102,6 +120,12 @@ const fetchFromStartpage = async (query, options = {}) => {
         .filter(Boolean);
 
       const filteredLinks = linkFilter(normalized);
+
+      if (filteredLinks.length === 0) {
+        console.warn(
+          `[Startpage:debug] 0 links found. Body snippet: ${body.substring(0, 500)}`,
+        );
+      }
 
       return filteredLinks;
     } catch (error) {

@@ -3,6 +3,7 @@ import * as cheerio from "cheerio";
 import { CookieJar } from "tough-cookie";
 import { wrapper } from "axios-cookiejar-support";
 import iconv from "iconv-lite";
+import fs from "fs";
 import linkFilter from "../functions/linkFilter.js";
 
 import { configDotenv } from "dotenv";
@@ -87,6 +88,36 @@ const fetchFromBing = async (query, options = {}) => {
       const body = iconv.decode(response.data, charset);
 
       const $ = cheerio.load(body);
+      const pageTitle = $("title").text();
+      const algoCount = $("li.b_algo").length;
+      const bResults = $("#b_results");
+      const allLiClasses = [];
+      bResults.find("> li").each((_, el) => {
+        allLiClasses.push($(el).attr("class") || "(no class)");
+      });
+      console.log(
+        `[Bing:debug] status=${response.status} title="${pageTitle}" li.b_algo=${algoCount} bodyLen=${body.length}`,
+      );
+      if (algoCount === 0) {
+        try {
+          fs.writeFileSync("debug_bing.html", body, "utf-8");
+        } catch (writeErr) {
+          console.error(
+            "[Bing:debug] Failed to write debug_bing.html:",
+            writeErr,
+          );
+        }
+        const allIds = [];
+        $("[id]").each((_, el) => {
+          allIds.push($(el).prop("tagName") + "#" + $(el).attr("id"));
+        });
+        const anchorCount = $("a[href]").length;
+        console.log(
+          `[Bing:debug] All IDs (${allIds.length}): [${allIds.slice(0, 30).join(", ")}]`,
+        );
+        console.log(`[Bing:debug] Total <a> with href: ${anchorCount}`);
+      }
+
       const seen = new Set();
       const results = [];
 
@@ -109,6 +140,13 @@ const fetchFromBing = async (query, options = {}) => {
         .filter(Boolean);
 
       const filteredLinks = linkFilter(normalized);
+
+      if (filteredLinks.length === 0) {
+        console.warn(
+          `[Bing:debug] 0 links found. Body snippet: ${body.substring(0, 500)}`,
+        );
+      }
+
       return filteredLinks;
     } catch (error) {
       if (i < retries - 1) {
