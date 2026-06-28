@@ -38,7 +38,15 @@ app.get("/api/image", imageParse);
 app.get("/api/images", imagesDump);
 app.post("/api/search", searchUrls);
 
+const swaggerCdnOptions = {
+  customCssUrl: "https://unpkg.com/swagger-ui-dist@5/swagger-ui.css",
+  customJs: [
+    "https://unpkg.com/swagger-ui-dist@5/swagger-ui-bundle.js",
+    "https://unpkg.com/swagger-ui-dist@5/swagger-ui-standalone-preset.js",
+  ],
+};
+
 app.use("/", swaggerUi.serve);
-app.get("/", swaggerUi.setup(swaggerDocument));
+app.get("/", swaggerUi.setup(swaggerDocument, swaggerCdnOptions));
 
 app.listen(port, () => {});
