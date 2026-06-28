@@ -38,6 +38,7 @@ app.get("/api/image", imageParse);
 app.get("/api/images", imagesDump);
 app.post("/api/search", searchUrls);
 
-app.use("/", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+app.use("/", swaggerUi.serve);
+app.get("/", swaggerUi.setup(swaggerDocument));
 
 app.listen(port, () => {});
