@@ -1,0 +1,242 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Web Scraping Service API",
+    "version": "1.0.0",
+    "description": "API documentation for the Web Scraping Service."
+  },
+  "servers": [
+    {
+      "url": "/"
+    }
+  ],
+  "paths": {
+    "/api/health": {
+      "get": {
+        "summary": "Health Check",
+        "description": "Check if the server is up and running.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "example": "Ok"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/parse": {
+      "get": {
+        "summary": "Parse Page Content",
+        "description": "Extracts the main clean text content of a single web page.",
+        "parameters": [
+          {
+            "name": "url",
+            "in": "query",
+            "required": true,
+            "description": "The URL of the page to parse.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Cleaned page content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "url": { "type": "string" },
+                    "content": { "type": "string" }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Missing or invalid URL"
+          }
+        }
+      }
+    },
+    "/api/scrape": {
+      "get": {
+        "summary": "Scrape Search Results",
+        "description": "Queries search engines and scrapes the text content of top result URLs.",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": true,
+            "description": "Search query string.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Aggregated and scraped results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "url": { "type": "string" },
+                      "source": { "type": "string" },
+                      "text": { "type": "string" }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Missing search query"
+          }
+        }
+      }
+    },
+    "/api/image": {
+      "get": {
+        "summary": "Extract Page Image",
+        "description": "Extracts the primary image URL from a web page.",
+        "parameters": [
+          {
+            "name": "url",
+            "in": "query",
+            "required": true,
+            "description": "The URL of the page.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Page image details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "url": { "type": "string" },
+                    "imageUrl": { "type": "string" }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Missing or invalid URL"
+          }
+        }
+      }
+    },
+    "/api/images": {
+      "get": {
+        "summary": "Dump Images from Search",
+        "description": "Searches engines and dumps discovered images.",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": true,
+            "description": "Search query.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Aggregated image results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Missing query"
+          }
+        }
+      }
+    },
+    "/api/search": {
+      "post": {
+        "summary": "Search URL results",
+        "description": "Queries search engines and returns result URLs, optionally filtered by domain restrictions.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Search query"
+                  },
+                  "domains": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "List of domains to restrict results to"
+                  }
+                },
+                "required": ["query"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Search URLs by engine",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "query": { "type": "string" },
+                    "domains": {
+                      "type": "array",
+                      "items": { "type": "string" }
+                    },
+                    "startpage": {
+                      "type": "array",
+                      "items": { "type": "string" }
+                    },
+                    "bing": {
+                      "type": "array",
+                      "items": { "type": "string" }
+                    },
+                    "yahoo": {
+                      "type": "array",
+                      "items": { "type": "string" }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Missing query or invalid domains"
+          }
+        }
+      }
+    }
+  }
+}

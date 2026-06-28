@@ -24,6 +24,7 @@
     "express": "^5.1.0",
     "express-rate-limit": "^8.1.0",
     "iconv-lite": "^0.7.0",
+    "swagger-ui-express": "^5.0.1",
     "tough-cookie": "^6.0.0"
   },
   "devDependencies": {
