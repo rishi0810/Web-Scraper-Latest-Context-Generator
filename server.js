@@ -47,6 +47,15 @@ const swaggerCdnOptions = {
 };
 
 app.use("/", swaggerUi.serve);
-app.get("/", swaggerUi.setup(swaggerDocument, swaggerCdnOptions));
+app.get(
+  "/",
+  (req, res, next) => {
+    // Edge (Vercel CDN) caches for 365 days; browsers always revalidate.
+    res.set("Cache-Control", "public, max-age=0, must-revalidate");
+    res.set("Vercel-CDN-Cache-Control", "public, s-maxage=31536000");
+    next();
+  },
+  swaggerUi.setup(swaggerDocument, swaggerCdnOptions),
+);
 
 app.listen(port, () => {});
