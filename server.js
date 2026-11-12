@@ -38,14 +38,20 @@ app.get("/api/image", imageParse);
 app.get("/api/images", imagesDump);
 app.post("/api/search", searchUrls);
 
-const swaggerCdnOptions = {
-  customCssUrl: "https://unpkg.com/swagger-ui-dist@5/swagger-ui.css",
-  customJs: [
-    "https://unpkg.com/swagger-ui-dist@5/swagger-ui-bundle.js",
-    "https://unpkg.com/swagger-ui-dist@5/swagger-ui-standalone-preset.js",
+// Edge (Vercel CDN) caches assets for 365 days; browsers always revalidate.
+app.use(
+  [
+    "/swagger-ui.css",
+    "/swagger-ui-bundle.js",
+    "/swagger-ui-standalone-preset.js",
+    "/swagger-ui-init.js",
   ],
-};
-
+  (req, res, next) => {
+    res.set("Cache-Control", "public, max-age=0, must-revalidate");
+    res.set("Vercel-CDN-Cache-Control", "public, s-maxage=31536000");
+    next();
+  },
+);
 app.use("/", swaggerUi.serve);
 app.get(
   "/",
@@ -55,7 +61,7 @@ app.get(
     res.set("Vercel-CDN-Cache-Control", "public, s-maxage=31536000");
     next();
   },
-  swaggerUi.setup(swaggerDocument, swaggerCdnOptions),
+  swaggerUi.setup(swaggerDocument),
 );
 
 app.listen(port, () => {});
